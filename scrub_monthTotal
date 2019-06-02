@@ -1,0 +1,30 @@
+import pandas as pd
+import calendar
+yrmo = {}
+for yr in ['2017','2018','2019']:
+    for mo in ['01','02','03','04','05','06','07','08','09','10','11','12']:
+        yrmo['%s-%s',yr,calendar.month_name[int(mo)]] = 0
+for filename in ['tweet_2017_to_2018_with_hashtags.csv','tweet_2018_to_2019_with_hashtags.csv']:
+    df = pd.read_csv(filename)
+    tweet_dates = df['date']
+    for date in tweet_dates:
+        mo = (date.split(' ')[0]).split('-')[1]
+        yr = (date.split(' ')[0]).split('-')[2]
+        yrmo['%s-%s',yr,calendar.month_name[int(mo)]] += 1
+for yr in ['2017','2018','2019']:
+    for mo in ['01','02','03','04','05','06','07','08','09','10','11','12']:
+        if (((int(yr)==2017) and (int(mo)>8)) or ((int(yr)==2019) and (int(mo)<7)) or int(yr)==2018):
+            print (yr,'-',calendar.month_name[int(mo)],',',yrmo['%s-%s',yr,calendar.month_name[int(mo)]])
+
+import string
+import re
+from nltk.corpus import stopwords
+stop_words = set(stopwords.words('english'))
+tweet_texts = df['text']
+for tweet in tweet_texts[:20]:
+    tweet = re.sub(r"â€|Ã©|™|¦", "", tweet)
+    tweet = ' '.join(word for word in tweet.split(' ') if not (re.match(r"http",word) or re.match(r".*\..*/",word) or re.match(r"#",word) or re.match(r"\d+",word)))
+    tweet = tweet.translate(str.maketrans(string.punctuation, ' '*len(string.punctuation)))
+    tweet = [w for w in tweet.split(' ') if not w in stop_words]
+    tweet = ' '.join(w for w in tweet)
+    print (tweet)
