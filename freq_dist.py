@@ -15,6 +15,8 @@ def freq_dict(file_list,noun_type='all',most_common_no=100):
     porter = PorterStemmer()
     stop_words = set(stopwords.words('english'))
     ret_list = []
+    if isinstance(file_list, str):
+        file_list = [file_list]
     for file_name in file_list:
         df = pd.read_csv(file_name)
         tweet_texts = df['text']
