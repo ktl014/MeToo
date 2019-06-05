@@ -109,7 +109,7 @@ def my_func(i):
 #
 #
 # ============== BEGIN: Plotting ============== #
-def plot_sentiment(data):
+def plot_sentiment(data, year=17):
     """Plot histogram of sentiment affects"""
     df = data.copy()
     nrc = NRCLexicon()
@@ -131,9 +131,12 @@ def plot_sentiment(data):
 
     for bar in rect:
         yval = bar.get_height()
-        ax.text(bar.get_x()+0.25, yval + .025, yval, fontsize=12)
+        ax.text(bar.get_x()+0.05, yval + .035, yval, fontsize=12)
 
     plt.tight_layout()
+    if not os.path.exists('figs'):
+        os.makedirs('figs')
+    plt.savefig('figs/sentiment_{}.png'.format(year))
     plt.show()
 
 # ============== END: Plotting ============== #
@@ -181,6 +184,7 @@ class NRCLexicon(object):
                 nouns_only.append(word)
             except:
                 pass
+
         df = self.nrc[self.nrc[self.TG].isin(nouns_only) & self.nrc[self.AF] == 1].reset_index(
             drop=True)
         counts = df['affect_cat'].value_counts().sort_index()
