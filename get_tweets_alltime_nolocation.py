@@ -9,24 +9,31 @@
 class TweetCriteria:
     def __init__(self):
         self.maxTweets = 0
+
     def setUsername(self, username):
         self.username = username
         return self
+
     def setSince(self, since):
         self.since = since
         return self
+
     def setUntil(self, until):
         self.until = until
         return self
+
     def setQuerySearch(self, querySearch):
         self.querySearch = querySearch
         return self
+
     def setMaxTweets(self, maxTweets):
         self.maxTweets = maxTweets
         return self
+
     def setLang(self, Lang):
         self.lang = Lang
         return self
+
     def setTopTweets(self, topTweets):
         self.topTweets = topTweets
         return self
@@ -46,15 +53,19 @@ class Tweet:
 
 # In[3]:
 
-
-import urllib.request, urllib.parse, urllib.error,urllib.request,urllib.error,urllib.parse,json,re,datetime,sys,http.cookiejar
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, json, re, datetime, sys, http.cookiejar
 from pyquery import PyQuery
+
 
 class TweetManager:
     def __init__(self):
         pass
+
     @staticmethod
-    def getTweets(tweetCriteria, receiveBuffer=None, bufferLength=100, proxy=None):
+    def getTweets(tweetCriteria,
+                  receiveBuffer=None,
+                  bufferLength=100,
+                  proxy=None):
         refreshCursor = ''
         results = []
         resultsAux = []
@@ -62,7 +73,8 @@ class TweetManager:
         active = True
 
         while active:
-            json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy)
+            json = TweetManager.getJsonReponse(tweetCriteria, refreshCursor,
+                                               cookieJar, proxy)
             if len(json['items_html'].strip()) == 0:
                 break
 
@@ -71,23 +83,37 @@ class TweetManager:
             #Remove incomplete tweets withheld by Twitter Guidelines
             scrapedTweets.remove('div.withheld-tweet')
             tweets = scrapedTweets('div.js-stream-tweet')
-            
+
             if len(tweets) == 0:
                 break
-            
+
             for tweetHTML in tweets:
                 tweetPQ = PyQuery(tweetHTML)
                 tweet = Tweet()
-                
-                usernameTweet = tweetPQ("span.username.js-action-profile-name b").text()
-                txt = re.sub(r"\s+", " ", tweetPQ("p.js-tweet-text").text().replace('# ', '#').replace('@ ', '@'))
-                retweets = int(tweetPQ("span.ProfileTweet-action--retweet span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replace(",", ""))
-                favorites = int(tweetPQ("span.ProfileTweet-action--favorite span.ProfileTweet-actionCount").attr("data-tweet-stat-count").replace(",", ""))
-                dateSec = int(tweetPQ("small.time span.js-short-timestamp").attr("data-time"))
+
+                usernameTweet = tweetPQ(
+                    "span.username.js-action-profile-name b").text()
+                txt = re.sub(
+                    r"\s+", " ",
+                    tweetPQ("p.js-tweet-text").text().replace('# ',
+                                                              '#').replace(
+                                                                  '@ ', '@'))
+                retweets = int(
+                    tweetPQ(
+                        "span.ProfileTweet-action--retweet span.ProfileTweet-actionCount"
+                    ).attr("data-tweet-stat-count").replace(",", ""))
+                favorites = int(
+                    tweetPQ(
+                        "span.ProfileTweet-action--favorite span.ProfileTweet-actionCount"
+                    ).attr("data-tweet-stat-count").replace(",", ""))
+                dateSec = int(
+                    tweetPQ("small.time span.js-short-timestamp").attr(
+                        "data-time"))
                 id = tweetPQ.attr("data-tweet-id")
                 permalink = tweetPQ.attr("data-permalink-path")
-                user_id = int(tweetPQ("a.js-user-profile-link").attr("data-user-id"))
-                
+                user_id = int(
+                    tweetPQ("a.js-user-profile-link").attr("data-user-id"))
+
                 geo = ''
                 geoSpan = tweetPQ('span.Tweet-geo')
                 if len(geoSpan) > 0:
@@ -101,52 +127,55 @@ class TweetManager:
                 tweet.id = id
                 tweet.permalink = 'https://twitter.com' + permalink
                 tweet.username = usernameTweet
-                
+
                 tweet.text = txt
                 tweet.date = datetime.datetime.fromtimestamp(dateSec)
-                tweet.formatted_date = datetime.datetime.fromtimestamp(dateSec).strftime("%a %b %d %X +0000 %Y")
+                tweet.formatted_date = datetime.datetime.fromtimestamp(
+                    dateSec).strftime("%a %b %d %X +0000 %Y")
                 tweet.retweets = retweets
                 tweet.favorites = favorites
-                tweet.mentions = " ".join(re.compile('(@\\w*)').findall(tweet.text))
-                tweet.hashtags = " ".join(re.compile('(#\\w*)').findall(tweet.text))
+                tweet.mentions = " ".join(
+                    re.compile('(@\\w*)').findall(tweet.text))
+                tweet.hashtags = " ".join(
+                    re.compile('(#\\w*)').findall(tweet.text))
                 tweet.geo = geo
                 tweet.urls = ",".join(urls)
                 tweet.author_id = user_id
-                
+
                 results.append(tweet)
                 resultsAux.append(tweet)
-                
+
                 if receiveBuffer and len(resultsAux) >= bufferLength:
                     receiveBuffer(resultsAux)
                     resultsAux = []
-                
-                if tweetCriteria.maxTweets > 0 and len(results) >= tweetCriteria.maxTweets:
+
+                if tweetCriteria.maxTweets > 0 and len(
+                        results) >= tweetCriteria.maxTweets:
                     active = False
                     break
-                    
-        
+
         if receiveBuffer and len(resultsAux) > 0:
             receiveBuffer(resultsAux)
-        
+
         return results
-    
+
     @staticmethod
     def getJsonReponse(tweetCriteria, refreshCursor, cookieJar, proxy):
         url = "https://twitter.com/i/search/timeline?f=tweets&q=%s&src=typd&%smax_position=%s"
-        
+
         urlGetData = ''
         if hasattr(tweetCriteria, 'username'):
             urlGetData += ' from:' + tweetCriteria.username
-            
+
         if hasattr(tweetCriteria, 'since'):
             urlGetData += ' since:' + tweetCriteria.since
-            
+
         if hasattr(tweetCriteria, 'until'):
             urlGetData += ' until:' + tweetCriteria.until
-            
+
         if hasattr(tweetCriteria, 'querySearch'):
             urlGetData += ' ' + tweetCriteria.querySearch
-            
+
         if hasattr(tweetCriteria, 'lang'):
             urlLang = 'lang=' + tweetCriteria.lang + '&'
         else:
@@ -154,53 +183,56 @@ class TweetManager:
         url = url % (urllib.parse.quote(urlGetData), urlLang, refreshCursor)
         #print(url)
 
-        headers = [
-            ('Host', "twitter.com"),
-            ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
-            ('Accept', "application/json, text/javascript, */*; q=0.01"),
-            ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
-            ('X-Requested-With', "XMLHttpRequest"),
-            ('Referer', url),
-            ('Connection', "keep-alive")
-        ]
+        headers = [('Host', "twitter.com"),
+                   ('User-Agent', "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"),
+                   ('Accept',
+                    "application/json, text/javascript, */*; q=0.01"),
+                   ('Accept-Language', "de,en-US;q=0.7,en;q=0.3"),
+                   ('X-Requested-With', "XMLHttpRequest"), ('Referer', url),
+                   ('Connection', "keep-alive")]
 
         if proxy:
-            opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': proxy, 'https': proxy}), urllib.request.HTTPCookieProcessor(cookieJar))
+            opener = urllib.request.build_opener(
+                urllib.request.ProxyHandler({
+                    'http': proxy,
+                    'https': proxy
+                }), urllib.request.HTTPCookieProcessor(cookieJar))
         else:
-            opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookieJar))
+            opener = urllib.request.build_opener(
+                urllib.request.HTTPCookieProcessor(cookieJar))
         opener.addheaders = headers
 
         try:
             response = opener.open(url)
             jsonResponse = response.read()
         except:
-            print("Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd" % urllib.parse.quote(urlGetData))
+            print(
+                "Twitter weird response. Try to see on browser: https://twitter.com/search?q=%s&src=typd"
+                % urllib.parse.quote(urlGetData))
             print("Unexpected error:", sys.exc_info()[0])
             sys.exit()
             return
-        
+
         dataJson = json.loads(jsonResponse.decode())
-        
+
         return dataJson
 
 
 # ### Running part
 
 # In[7]:
-
-
-tweet_criteria = TweetCriteria().setQuerySearch('#metoo').setTopTweets(True).setMaxTweets(10000)
+print("Before")
+tweet_criteria = TweetCriteria().setQuerySearch('#metoo').setTopTweets(
+    True).setMaxTweets(10000)
+print("After")
 import csv
-with open('tweet_text_date.csv', 'w', newline='',encoding='utf-8') as csvfile:
-    fieldnames = ['text', 'date']
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    for tweet in TweetManager.getTweets(tweet_criteria):
-        writer.writerow({'text': tweet.text, 'date': tweet.date})
-
+#with open('tweet_text_date.csv', 'w', newline='', encoding='utf-8') as csvfile:
+#    fieldnames = ['text', 'date']
+#    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+#    writer.writeheader()
+for tweet in TweetManager.getTweets(tweet_criteria):
+    #writer.writerow({'text': tweet.text, 'date': tweet.date})
+    print(tweet.text)
+    print("/")
 
 # In[ ]:
-
-
-
-
