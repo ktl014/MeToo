@@ -204,8 +204,8 @@ if __name__ == '__main__':
         if data.endswith('.csv'):
             # Read in data
             df = pd.read_csv(os.path.join(dataset_dir, data))
-            # smpl_size = 1
-            # df = df.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
+            smpl_size = 10
+            df = df.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
 
             # Format into sentiment dataframe
             nrc = NRCLexicon()
@@ -230,6 +230,7 @@ if __name__ == '__main__':
             # df[nrc.sentiments] = df['text'].apply(trace_progress(nrc.sentiment_score, progress=co))
 
             # Plot sentiment
+	    print('Plotting')
             plot_sentiment(data=df)
 
     """Single usage"""
