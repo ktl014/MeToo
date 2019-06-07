@@ -1,5 +1,5 @@
 def freq_dict(file_list,noun_type='all',most_common_no=100):
-    '''Returns dictionary of string to number, i.e., noun to number of occurences, for tweets stored in files in specified file list.
+    '''Returns list of tuples of string to number, i.e., noun to number of occurences, for tweets stored in specified file.
     Can show proper or common nouns selectively.
     Default number of most frequent names/nouns = 100'''
     assert (noun_type=='all' or noun_type=='proper'), 'Only \'proper\' and \'all\' options allowed'
@@ -14,9 +14,9 @@ def freq_dict(file_list,noun_type='all',most_common_no=100):
     from nltk.tag import pos_tag
     porter = PorterStemmer()
     stop_words = set(stopwords.words('english'))
+    if isinstance(file_list,str):
+        file_list = list(file_list)
     ret_list = []
-    if isinstance(file_list, str):
-        file_list = [file_list]
     for file_name in file_list:
         df = pd.read_csv(file_name)
         tweet_texts = df['text']
@@ -42,4 +42,4 @@ def freq_dict(file_list,noun_type='all',most_common_no=100):
                 stemmed = [porter.stem(word) for word in nouns]
                 ret_list.extend([word for word in stemmed])
     c = Counter(ret_list)
-    return (dict(c.most_common(most_common_no)))
+    return (c.most_common(most_common_no))
