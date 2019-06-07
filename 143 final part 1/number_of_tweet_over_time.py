@@ -1,4 +1,8 @@
 def number_of_tweet_over_time(tweet_month_df):
+    """plot and return the plot object for  the amount of tweets per month.
+    also label important events
+    params:
+    tweet_month_df: dataframe containing time and tweets column"""
     import pandas as pd
     assert (isinstance(tweet_month_df, pd.DataFrame))
     assert (('time' in tweet_month_df) and ('tweets') in tweet_month_df)
@@ -29,6 +33,7 @@ def number_of_tweet_over_time(tweet_month_df):
     from bokeh.models import HoverTool
     from bokeh.plotting import figure, output_file, show, ColumnDataSource
 
+    # making hovertool labels
     source = ColumnDataSource(data=dict(
         x=[1, 4, 5, 13, 16, 19],
         y=[4268, 3876, 2600, 5849, 1378, 1094],

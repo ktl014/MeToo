@@ -1,4 +1,7 @@
 def csv_to_dataframe_time_amount(directory):
+    """convert the csv file of tweets to number of tweet per month
+        :param
+        directory: the location of the csv file"""
     import pandas as pd
     import calendar
     import os

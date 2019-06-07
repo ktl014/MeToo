@@ -1,12 +1,17 @@
 def number_of_mention_per_person(directory):
+    """plot the number of mention per person over the period of 21 month
+    :param
+    directory: the location of the csv file"""
     import pandas as pd
-    import matplotlib.pyplot as plt
     import calendar
+    import matplotlib.pyplot as plt
+    import pandas_bokeh
     import os
 
     assert (isinstance(directory, str) and os.path.isfile(directory)), "directory not exist"
     df = pd.read_csv(directory)
 
+    # create event and name dataframe
     df_name_trend = pd.DataFrame(columns=['time', 'Spacey', 'Weinstein'])
     for yr in ['2017', '2018', '2019']:
         for mo in ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']:
@@ -24,7 +29,7 @@ def number_of_mention_per_person(directory):
                                                       }, ignore_index=True)
     df_name_trend = df_name_trend.set_index('time')
 
-    import pandas_bokeh
+    # plot
     pandas_bokeh.output_notebook()
     # pandas_bokeh.output_file("C:\\Users\\drill\\OneDrive\\Desktop\\143 final\\Interactive_Plot_number_or_tweet_per_person.html")
     df_name_trend = df_name_trend.astype(float)
