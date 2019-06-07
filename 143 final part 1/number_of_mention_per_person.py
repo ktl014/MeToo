@@ -1,17 +1,13 @@
 def number_of_mention_per_person(directory):
-    """plot the number of mention per person over the period of 21 month
-    :param
-    directory: the location of the csv file"""
     import pandas as pd
-    import calendar
     import matplotlib.pyplot as plt
-    import pandas_bokeh
+    import calendar
     import os
+    from math import pi
 
     assert (isinstance(directory, str) and os.path.isfile(directory)), "directory not exist"
     df = pd.read_csv(directory)
 
-    # create event and name dataframe
     df_name_trend = pd.DataFrame(columns=['time', 'Spacey', 'Weinstein'])
     for yr in ['2017', '2018', '2019']:
         for mo in ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']:
@@ -29,11 +25,11 @@ def number_of_mention_per_person(directory):
                                                       }, ignore_index=True)
     df_name_trend = df_name_trend.set_index('time')
 
-    # plot
+    import pandas_bokeh
     pandas_bokeh.output_notebook()
-    # pandas_bokeh.output_file("C:\\Users\\drill\\OneDrive\\Desktop\\143 final\\Interactive_Plot_number_or_tweet_per_person.html")
+    #pandas_bokeh.output_file("C:\\Users\\drill\\OneDrive\\Desktop\\143 final\\Interactive_Plot_number_or_tweet_per_person.html")
     df_name_trend = df_name_trend.astype(float)
-    p = df_name_trend.plot_bokeh(figsize=(900, 600), kind='line', title='Number of Mentions over time',
+    p = df_name_trend.plot_bokeh(figsize=(1280, 720), kind='line', title='Number of Mentions over time',
                                  ylabel='Number of Mentions',
                                  zooming=False, hovertool=False, show_figure=False, xlabel='')
     p.title.text_font_size = '20pt'
@@ -42,7 +38,7 @@ def number_of_mention_per_person(directory):
     p.xaxis.major_label_text_font_size = "15pt"
     p.yaxis.major_label_text_font_size = "15pt"
     p.legend.label_text_font_size = "10pt"
-    p.xaxis.major_label_orientation = "vertical"
+    p.xaxis.major_label_orientation = pi/4
     pandas_bokeh.show(p)
 
     return p
