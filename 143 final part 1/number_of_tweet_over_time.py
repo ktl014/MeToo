@@ -9,16 +9,18 @@ def number_of_tweet_over_time(tweet_month_df):
     from bokeh.models import Legend, LinearAxis, HoverTool
 
     output_notebook()
-    #pandas_bokeh.output_file("C:\\Users\\drill\\OneDrive\\Desktop\\143 final\\Interactive_Plot_tweet_trend.html")
+    pandas_bokeh.output_file("C:\\Users\\drill\\Documents\\143 final part 1\\Interactive_Plot_tweet_trend.html")
 
     tweet_month_df = tweet_month_df.set_index('time')
     tweet_month_df['tweets'] = tweet_month_df['tweets'].astype(float)
 
-    p = tweet_month_df.plot_bokeh(figsize=(1280, 720), kind='line', title='Number of tweets over time',
+    p = tweet_month_df.plot_bokeh(figsize=(1280, 720), kind='line', title='NUMBER OF TWEETS OVER TIME',
                                   ylabel='Number of Tweets',
                                   zooming=False, hovertool=False, show_figure=False, xlabel='')
 
-    p.title.text_font_size = '20pt'
+    p.title.text_font_size = '25pt'
+    p.xgrid.grid_line_color = None
+    p.ygrid.grid_line_color = None
     p.xaxis.axis_label_text_font_size = "15pt"
     p.yaxis.axis_label_text_font_size = "15pt"
     p.xaxis.major_label_text_font_size = "15pt"
