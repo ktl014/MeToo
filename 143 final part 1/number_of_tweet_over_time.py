@@ -9,7 +9,7 @@ def number_of_tweet_over_time(tweet_month_df):
     from bokeh.models import Legend, LinearAxis, HoverTool
 
     output_notebook()
-    pandas_bokeh.output_file("C:\\Users\\drill\\Documents\\143 final part 1\\Interactive_Plot_tweet_trend.html")
+    #pandas_bokeh.output_file("C:\\Users\\drill\\Documents\\143 final part 1\\Interactive_Plot_tweet_trend.html")
 
     tweet_month_df = tweet_month_df.set_index('time')
     tweet_month_df['tweets'] = tweet_month_df['tweets'].astype(float)
