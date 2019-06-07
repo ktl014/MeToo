@@ -27,7 +27,7 @@ def number_of_mention_per_person(directory):
 
     import pandas_bokeh
     pandas_bokeh.output_notebook()
-    pandas_bokeh.output_file("C:\\Users\\drill\\Documents\\143 final part 1\\Interactive_Plot_number_or_tweet_per_person.html")
+    #pandas_bokeh.output_file("C:\\Users\\drill\\Documents\\143 final part 1\\Interactive_Plot_number_or_tweet_per_person.html")
     df_name_trend = df_name_trend.astype(float)
     p = df_name_trend.plot_bokeh(figsize=(1280, 720), kind='line', title='NUMBER OF MENTIONS OVER TIME',
                                  ylabel='Number of Mentions',
