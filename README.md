@@ -19,6 +19,14 @@
 * pandas_bokeh
 * GetOldTweets3 - extracts old tweets using urls
 
+#### NOTE: To use the tweepy API, you need a twitter authentication file in the root directory called auth.py containing the following lines (fill in X's with your credentials):
+```
+consumer_key = "XXXXXXXXXXXXXXXXXXXXXX"
+consumer_secret = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+access_token = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+access_token_secret = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
 ### Directory structure:
 - datasets/ - datasets folder
   - .CSV file for tweets from 2017-18, 2018-19 and cumulative 2017-19 with details of tweets: text, date-time, username, #retweets, hashtags and mentions
