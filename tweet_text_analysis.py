@@ -5,12 +5,10 @@
 This script is meant for part 3 of our overall Twitter analysis.
 It will be focusing on prepping and analyzing the dataset to answer the following questions:
 
-1) What is the frequency of most occurring words?
-2) What is the tone of general conservations?
-3) What is the sentiment analysis?
-
 # download wordnet
 python -m nltk.downloader -d /Users/ktl014/miniconda3/envs/metoo_env/nltk_data wordnet
+# download stopwords
+
 
 """
 from __future__ import print_function
@@ -40,6 +38,7 @@ def clean_tweet(tweet):
     '''
     import re
     import string
+    assert isinstance(tweet, str)
     # Initialize stop words
     stop_words = set(stopwords.words("english"))
 
@@ -62,6 +61,7 @@ def clean_tweet(tweet):
 
 def remove_emoji(text):
     """Remove Emojis"""
+    assert isinstance(text, list) and text
     import emoji
     allchars = [str for str in text]
     emoji_list = [c for c in allchars if c in emoji.UNICODE_EMOJI]
@@ -111,6 +111,7 @@ def my_func(i):
 # ============== BEGIN: Plotting ============== #
 def plot_sentiment(data, year=17):
     """Plot histogram of sentiment affects"""
+    assert isinstance(data, pd.DataFrame) and not data.empty
     df = data.copy()
     nrc = NRCLexicon()
     temp = df[nrc.sentiments].sum().sort_values()
@@ -164,13 +165,9 @@ class NRCLexicon(object):
         self.nrc[self.AFF_CAT] = self.nrc[self.AFF].astype('category').cat.codes
         self.sentiments = sorted(set(self.nrc[self.AFF]))
 
-    def _is_word_available(self, word):
-        """Checks if word is available within corpus"""
-        return self.nrc[self.TG].str.contains(word).any()
-
 
     def lemnatize(self, query):
-        """Lemnatize the word"""
+        """Lemnatize the word (apply function for Pandas)"""
         query = nltk.pos_tag(query.split())
         nouns_only = []
         for i,(word, pos) in enumerate(query):
@@ -182,7 +179,7 @@ class NRCLexicon(object):
         return ','.join(nouns_only)
 
     def sentiment_score(self, row):
-        """Returns sentiment score given a list of words"""
+        """Returns sentiment score given a list of words (apply function for Pandas)"""
         nouns_only = row.split(',')
         df = self.nrc[self.nrc[self.TG].isin(nouns_only) & self.nrc[self.AF] == 1].reset_index(
             drop=True)
