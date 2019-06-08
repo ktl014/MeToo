@@ -1,8 +1,10 @@
+### UCSD ECE 143 Spring '19 - Team 19
+
 # \#MeToo hashtag analysis
 ## Project to analyze spread and impact of the #MeToo movement on Twitter, over time and geography, different kinds of sentiments expressed etc.
 
-## Required Packages
-### The following packages can be installed through pip install -r requirements.txt:
+### Required Packages
+#### The following packages can be installed through pip install -r requirements.txt:
 * numpy
 * pandas
 * geopy
@@ -17,7 +19,6 @@
 * pandas_bokeh
 * GetOldTweets3 - extracts old tweets using urls
 
-### UCSD ECE 143 Spring '19 - Team 19
 ### Directory structure:
 - datasets/ - datasets folder
   - .CSV file for tweets from 2017-18, 2018-19 and cumulative 2017-19 with details of tweets: text, date-time, username, #retweets, hashtags and mentions
