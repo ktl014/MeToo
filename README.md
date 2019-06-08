@@ -5,15 +5,24 @@
 - datasets/ - datasets folder
   - .CSV file for tweets from 2017-18, 2018-19 and cumulative 2017-19 with details of tweets: text, date-time, username, #retweets, hashtags and mentions
   - file used to weed out emojis used in tweets for better sentiment analysis
-- visualization_notebook.ipynb - sample plot of all the graphs used in the PPT. Time chart and mentions of famous people - part 1 of ppt - in 143_final_part 1 folder.
+- visualization_notebook.ipynb - one sample of all types of graphs used in PPT
 - freq_dict.py - contains functions:
   - freq_dict - return string:word mapping of important keywords/names found in tweets stored in CSVs
 - get_tweet_with_more_stuffs.py - contains functions:
-  - get_unique_tweets - save a CSV file containing tweet text, date, username, retweets, hashtags and mentions, given hashtag query string, language, since and until dates
+  - get_unique_tweets - save a CSV file containing tweet text, date, username, retweets, hashtags and mentions, given hashtag query string, language, since and until dates (dependencies imported from https://github.com/Jefferson-Henrique/GetOldTweets-python)
 - time_analysis_functions.py - contains functions:
   - csv_to_dataframe_time_amount - return dataframe object with month:#corresponding tweets mapping, given CSV datasets directory path
   - number_of_tweet_over_time - return bokeh object of #tweets over time given dataframe object of month:#tweets mapping
   - number_of_mention_per_person - return bokeh object of #mentions/persion in tweets given CSV dataset directory path
+- tweet_text_analysis.py - contains functions:
+  - clean_tweet - strips tweet text of punctuations, special characters, hyperlinks, NLTK stopwords, PorterStem of words
+  - remove_emoji - removes emoji from tweet texts
+  - couroutines - for tracing progress of computing sentiment - including percentage metrics
+  - plot_sentiment - plots bar graph of sentiment of tweets, based on sentiment corpus in dataset folder
+  - class NRCLexicon - NRC Lexicon to parse, map and score tweets, functions:
+    - init
+    - is_word_available - return if word is available in corpus
+    - sentiment score - return sentiment score given list of words
 - utilities.py - contains functions:
   - create_country_dict - return dictionary of countries based on geojson file from githubusercontent
   - get_country - return country given longitude,lattitude tuple
