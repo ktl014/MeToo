@@ -5,12 +5,10 @@
 This script is meant for part 3 of our overall Twitter analysis.
 It will be focusing on prepping and analyzing the dataset to answer the following questions:
 
-1) What is the frequency of most occurring words?
-2) What is the tone of general conservations?
-3) What is the sentiment analysis?
-
 # download wordnet
 python -m nltk.downloader -d /Users/ktl014/miniconda3/envs/metoo_env/nltk_data wordnet
+# download stopwords
+
 
 """
 from __future__ import print_function
@@ -34,12 +32,19 @@ CORPUS_FNAME = 'datasets/NRC-emotion-lexicon-wordlevel-alphabetized-v0.92.txt'
 
 # ============== BEGIN: Cleaning Tweet ============== #
 def clean_tweet(tweet):
-    '''
-        Utility function to clean tweet text by removing links, special characters
+    '''Utility function to clean tweet text by removing links, special characters
         using simple regex statements.
+
+    Args:
+        tweet (str): Tweet to be cleaned
+
+    Returns:
+        str: Cleaned tweet
+
     '''
     import re
     import string
+    assert isinstance(tweet, str)
     # Initialize stop words
     stop_words = set(stopwords.words("english"))
 
@@ -62,6 +67,7 @@ def clean_tweet(tweet):
 
 def remove_emoji(text):
     """Remove Emojis"""
+    assert isinstance(text, list) and text
     import emoji
     allchars = [str for str in text]
     emoji_list = [c for c in allchars if c in emoji.UNICODE_EMOJI]
@@ -74,7 +80,7 @@ def remove_emoji(text):
 #
 #
 # ============== BEGIN: Coroutines ============== #
-def percentage_coroutine(to_process, print_on_percent = 0.05):
+def percentage_coroutine(to_process, print_on_percent = 0.10):
     """Percentage monitor coroutine"""
     print ("Starting progress percentage monitor")
 
@@ -110,7 +116,16 @@ def my_func(i):
 #
 # ============== BEGIN: Plotting ============== #
 def plot_sentiment(data, year=17):
-    """Plot histogram of sentiment affects"""
+    """ Plot histogram of sentiment affects
+
+    Args:
+        data (pd.DataFrame: data to be plotted
+        year (int): Year of the distribution plotted. Default: 17
+
+    Returns:
+        None
+    """
+    assert isinstance(data, pd.DataFrame) and not data.empty
     df = data.copy()
     nrc = NRCLexicon()
     temp = df[nrc.sentiments].sum().sort_values()
@@ -145,11 +160,6 @@ def plot_sentiment(data, year=17):
 #
 #
 # ============== BEGIN: NRC Mapping ============== #
-def lemmed(text, cores=6): # tweak cores as needed
-    with Pool(processes=cores) as pool:
-        wnl = WordNetLemmatizer()
-        result = pool.map(wnl.lemmatize, text)
-    return result
 
 class NRCLexicon(object):
     """ NRC Lexicon Parsing, Mapping and Scoring
@@ -163,19 +173,27 @@ class NRCLexicon(object):
     AF = 'association_flag'
 
     def __init__(self, fname=CORPUS_FNAME):
-        """Initializes NRCLexicon"""
+        """ Initializes NRCLexicon
+
+        Args:
+            fname (str): Abs path to the corpus file
+        """
         self.nrc = pd.read_csv(fname, sep='\t',
                           names=[self.TG, self.AFF, self.AF])
         self.nrc[self.AFF_CAT] = self.nrc[self.AFF].astype('category').cat.codes
         self.sentiments = sorted(set(self.nrc[self.AFF]))
 
-    def _is_word_available(self, word):
-        """Checks if word is available within corpus"""
-        return self.nrc[self.TG].str.contains(word).any()
 
+    def lemnatize(self, query):
+        """Lemnatize the word (apply function for Pandas)
 
-    def sentiment_score(self, query):
-        """Returns sentiment score given a list of words"""
+        Args:
+            query (str): Query to be lemnatized
+
+        Returns:
+            str: Lemantized words separated by commas
+
+        """
         query = nltk.pos_tag(query.split())
         nouns_only = []
         for i,(word, pos) in enumerate(query):
@@ -184,7 +202,19 @@ class NRCLexicon(object):
                 nouns_only.append(word)
             except:
                 pass
+        return ','.join(nouns_only)
 
+    def sentiment_score(self, row):
+        """ Returns sentiment score given a list of words (apply function for Pandas)
+
+        Args:
+            row (str): Lemantized words separated by comma
+
+        Returns:
+            int: Distribution of sentiments within a sentence
+
+        """
+        nouns_only = row.split(',')
         df = self.nrc[self.nrc[self.TG].isin(nouns_only) & self.nrc[self.AF] == 1].reset_index(
             drop=True)
         counts = df['affect_cat'].value_counts().sort_index()
@@ -200,54 +230,42 @@ class NRCLexicon(object):
 if __name__ == '__main__':
     dataset_dir = 'datasets'
     df = pd.DataFrame()
+    year = 17
     for data in os.listdir(dataset_dir):
-        if data.endswith('.csv'):
+        if data.endswith('with_hashtags.csv'):
             # Read in data
-            df = pd.read_csv(os.path.join(dataset_dir, data))
+            
+            temp = pd.read_csv(os.path.join(dataset_dir, data))
             smpl_size = 10
-            df = df.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
+            temp = temp.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
+            df = df.append(temp)
 
-            # Format into sentiment dataframe
-            nrc = NRCLexicon()
-            df = pd.concat([df, pd.DataFrame(columns=nrc.sentiments).fillna(0)], sort=False)
 
-            # Clean tweet
-            co = percentage_coroutine(len(df))
-            print('Cleaning tweets')
-            df['text'] = df['text'].apply(trace_progress(clean_tweet, progress=co))
+    # Format into sentiment dataframe
+    print(df.shape)
+    nrc = NRCLexicon()
+    new_df = pd.concat([df, pd.DataFrame(columns=nrc.sentiments+['words']).fillna(0)], sort=False)
 
-            # Take sentiment score
-            print('Taking sentiment score')
-            co = percentage_coroutine(len(df))
-            for ii, row in df.iterrows():
-                if ii % 5000 == 0:
-                    print('{}/{}'.format(ii, len(df)))
-                row = row.copy()
-                df.loc[ii, nrc.sentiments] = nrc.sentiment_score(row['text'])
+    # Clean tweet
+    co = percentage_coroutine(len(new_df))
+    print('Cleaning tweets')
+    new_df['text'] = new_df['text'].apply(trace_progress(clean_tweet, progress=co))
 
-            #TODO functions to debug below
-            # df[nrc.sentiments] = df['text'].apply(nrc.sentiment_score, axis=1)
-            # df[nrc.sentiments] = df['text'].apply(trace_progress(nrc.sentiment_score, progress=co))
+    # Lemantize words
+    print('Lemantizing words')
+    co = percentage_coroutine(len(new_df))
+    new_df['words'] = new_df['text'].apply(trace_progress(nrc.lemnatize, progress=co))
 
-            # Plot sentiment
-	    print('Plotting')
-            plot_sentiment(data=df)
+    # Get sentiment score
+    print('Computing sentiment distribution')
+    for ii, row in new_df.iterrows():
+        if ii % 5000 == 0:
+            print('{}/{}'.format(ii, len(new_df)))
+        row = row.copy()
+        new_df.loc[ii, nrc.sentiments] = nrc.sentiment_score(row['words'])
 
-    """Single usage"""
-    # nrc = NRCLexicon()
-    # df = df.sample(1).reset_index(drop=True)
-    # df = pd.concat([df,pd.DataFrame(columns=nrc.sentiments).fillna(0)], sort=False)
-    # query = clean_tweet(df['text'][0])
-    #
-    # stopwords_set = set(stopwords.words("english"))
-    #
-    # words_filtered = [e.lower() for e in query.split() if len(e) >= 3]
-    # words_cleaned = [word for word in words_filtered
-    #                  if 'http' not in word
-    #                  and not word.startswith('@')
-    #                  and not word.startswith('#')
-    #                  and word != 'RT']
-    # words_without_stopwords = [word for word in words_cleaned if not word in stopwords_set]
-    # df[nrc.sentiments] = nrc.sentiment_score(words_without_stopwords)
-    #
-    # plot_sentiment(data=df)
+    # Plot sentiment
+    # new_df = pd.read_csv('processed_data/sentiments_17-19.csv') # UNCOMMENT to plot
+    plot_sentiment(data=new_df, year='17-19')
+    new_df.to_csv('datasets/sentiments_17-19.csv'.format(year), index=False)
+    year += 1
