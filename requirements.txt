@@ -2,10 +2,12 @@ numpy
 pandas
 geopy
 matplotlib
-basemap
-lxml==3.5.0
-pyquery==1.2.10
 bokeh
-pandas-bokeh
-GetOldTweets3 - https://github.com/Jefferson-Henrique/GetOldTweets-python
-auth
+wordcloud
+nltk
+tweepy
+https://github.com/matplotlib/basemap/archive/master.zip
+shapely
+imageio
+pandas_bokeh
+GetOldTweets3

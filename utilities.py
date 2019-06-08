@@ -226,7 +226,6 @@ def generate_gif(directory):
                     format='GIF', duration=.1)
 
 
-<<<<<<< HEAD
 def extract_retweet_numbers(df):
     ''' Extracts retweet numbers from dataframe '''
     retweet_cnts = df['retweets']
