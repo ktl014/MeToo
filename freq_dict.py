@@ -3,6 +3,7 @@ def freq_dict(file_list,noun_type='all',most_common_no=100):
     Can show proper or common nouns selectively.
     Default number of most frequent names/nouns = 100'''
     assert (noun_type=='all' or noun_type=='proper'), 'Only \'proper\' and \'all\' options allowed'
+    assert((isinstance(file_list,str) or isinstance(file_list,list)) and isinstance(noun_type,str) and isinstance(most_common_no,int))
     import string
     import re
     import pandas as pd
