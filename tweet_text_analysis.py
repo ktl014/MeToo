@@ -32,9 +32,15 @@ CORPUS_FNAME = 'datasets/NRC-emotion-lexicon-wordlevel-alphabetized-v0.92.txt'
 
 # ============== BEGIN: Cleaning Tweet ============== #
 def clean_tweet(tweet):
-    '''
-        Utility function to clean tweet text by removing links, special characters
+    '''Utility function to clean tweet text by removing links, special characters
         using simple regex statements.
+
+    Args:
+        tweet (str): Tweet to be cleaned
+
+    Returns:
+        str: Cleaned tweet
+
     '''
     import re
     import string
@@ -110,7 +116,15 @@ def my_func(i):
 #
 # ============== BEGIN: Plotting ============== #
 def plot_sentiment(data, year=17):
-    """Plot histogram of sentiment affects"""
+    """ Plot histogram of sentiment affects
+
+    Args:
+        data (pd.DataFrame: data to be plotted
+        year (int): Year of the distribution plotted. Default: 17
+
+    Returns:
+        None
+    """
     assert isinstance(data, pd.DataFrame) and not data.empty
     df = data.copy()
     nrc = NRCLexicon()
@@ -159,7 +173,11 @@ class NRCLexicon(object):
     AF = 'association_flag'
 
     def __init__(self, fname=CORPUS_FNAME):
-        """Initializes NRCLexicon"""
+        """ Initializes NRCLexicon
+
+        Args:
+            fname (str): Abs path to the corpus file
+        """
         self.nrc = pd.read_csv(fname, sep='\t',
                           names=[self.TG, self.AFF, self.AF])
         self.nrc[self.AFF_CAT] = self.nrc[self.AFF].astype('category').cat.codes
@@ -167,7 +185,15 @@ class NRCLexicon(object):
 
 
     def lemnatize(self, query):
-        """Lemnatize the word (apply function for Pandas)"""
+        """Lemnatize the word (apply function for Pandas)
+
+        Args:
+            query (str): Query to be lemnatized
+
+        Returns:
+            str: Lemantized words separated by commas
+
+        """
         query = nltk.pos_tag(query.split())
         nouns_only = []
         for i,(word, pos) in enumerate(query):
@@ -179,7 +205,15 @@ class NRCLexicon(object):
         return ','.join(nouns_only)
 
     def sentiment_score(self, row):
-        """Returns sentiment score given a list of words (apply function for Pandas)"""
+        """ Returns sentiment score given a list of words (apply function for Pandas)
+
+        Args:
+            row (str): Lemantized words separated by comma
+
+        Returns:
+            int: Distribution of sentiments within a sentence
+
+        """
         nouns_only = row.split(',')
         df = self.nrc[self.nrc[self.TG].isin(nouns_only) & self.nrc[self.AF] == 1].reset_index(
             drop=True)
@@ -230,6 +264,7 @@ if __name__ == '__main__':
         new_df.loc[ii, nrc.sentiments] = nrc.sentiment_score(row['words'])
 
     # Plot sentiment
+    # new_df = pd.read_csv('processed_data/sentiments_17-19.csv') # UNCOMMENT to plot
     plot_sentiment(data=new_df, year='17-19')
     new_df.to_csv('datasets/sentiments_17-19.csv'.format(year), index=False)
     year += 1
