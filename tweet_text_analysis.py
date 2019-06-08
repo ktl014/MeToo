@@ -74,7 +74,7 @@ def remove_emoji(text):
 #
 #
 # ============== BEGIN: Coroutines ============== #
-def percentage_coroutine(to_process, print_on_percent = 0.05):
+def percentage_coroutine(to_process, print_on_percent = 0.10):
     """Percentage monitor coroutine"""
     print ("Starting progress percentage monitor")
 
@@ -145,11 +145,6 @@ def plot_sentiment(data, year=17):
 #
 #
 # ============== BEGIN: NRC Mapping ============== #
-def lemmed(text, cores=6): # tweak cores as needed
-    with Pool(processes=cores) as pool:
-        wnl = WordNetLemmatizer()
-        result = pool.map(wnl.lemmatize, text)
-    return result
 
 class NRCLexicon(object):
     """ NRC Lexicon Parsing, Mapping and Scoring
@@ -174,8 +169,8 @@ class NRCLexicon(object):
         return self.nrc[self.TG].str.contains(word).any()
 
 
-    def sentiment_score(self, query):
-        """Returns sentiment score given a list of words"""
+    def lemnatize(self, query):
+        """Lemnatize the word"""
         query = nltk.pos_tag(query.split())
         nouns_only = []
         for i,(word, pos) in enumerate(query):
@@ -184,7 +179,11 @@ class NRCLexicon(object):
                 nouns_only.append(word)
             except:
                 pass
+        return ','.join(nouns_only)
 
+    def sentiment_score(self, row):
+        """Returns sentiment score given a list of words"""
+        nouns_only = row.split(',')
         df = self.nrc[self.nrc[self.TG].isin(nouns_only) & self.nrc[self.AF] == 1].reset_index(
             drop=True)
         counts = df['affect_cat'].value_counts().sort_index()
@@ -200,53 +199,40 @@ class NRCLexicon(object):
 if __name__ == '__main__':
     dataset_dir = 'datasets'
     df = pd.DataFrame()
+    year = 17
     for data in os.listdir(dataset_dir):
-        if data.endswith('.csv'):
+        if data.endswith('with_hashtags.csv'):
             # Read in data
-            df = pd.read_csv(os.path.join(dataset_dir, data))
-            # smpl_size = 1
-            # df = df.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
+            temp = pd.read_csv(os.path.join(dataset_dir, data))
+            smpl_size = 10
+            temp = temp.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
+            df = df.append(temp)
 
-            # Format into sentiment dataframe
-            nrc = NRCLexicon()
-            df = pd.concat([df, pd.DataFrame(columns=nrc.sentiments).fillna(0)], sort=False)
 
-            # Clean tweet
-            co = percentage_coroutine(len(df))
-            print('Cleaning tweets')
-            df['text'] = df['text'].apply(trace_progress(clean_tweet, progress=co))
+    # Format into sentiment dataframe
+    print(df.shape)
+    nrc = NRCLexicon()
+    new_df = pd.concat([df, pd.DataFrame(columns=nrc.sentiments+['words']).fillna(0)], sort=False)
 
-            # Take sentiment score
-            print('Taking sentiment score')
-            co = percentage_coroutine(len(df))
-            for ii, row in df.iterrows():
-                if ii % 5000 == 0:
-                    print('{}/{}'.format(ii, len(df)))
-                row = row.copy()
-                df.loc[ii, nrc.sentiments] = nrc.sentiment_score(row['text'])
+    # Clean tweet
+    co = percentage_coroutine(len(new_df))
+    print('Cleaning tweets')
+    new_df['text'] = new_df['text'].apply(trace_progress(clean_tweet, progress=co))
 
-            #TODO functions to debug below
-            # df[nrc.sentiments] = df['text'].apply(nrc.sentiment_score, axis=1)
-            # df[nrc.sentiments] = df['text'].apply(trace_progress(nrc.sentiment_score, progress=co))
+    # Lemantize words
+    print('Lemantizing words')
+    co = percentage_coroutine(len(new_df))
+    new_df['words'] = new_df['text'].apply(trace_progress(nrc.lemnatize, progress=co))
 
-            # Plot sentiment
-            plot_sentiment(data=df)
+    # Get sentiment score
+    print('Computing sentiment distribution')
+    for ii, row in new_df.iterrows():
+        if ii % 5000 == 0:
+            print('{}/{}'.format(ii, len(new_df)))
+        row = row.copy()
+        new_df.loc[ii, nrc.sentiments] = nrc.sentiment_score(row['words'])
 
-    """Single usage"""
-    # nrc = NRCLexicon()
-    # df = df.sample(1).reset_index(drop=True)
-    # df = pd.concat([df,pd.DataFrame(columns=nrc.sentiments).fillna(0)], sort=False)
-    # query = clean_tweet(df['text'][0])
-    #
-    # stopwords_set = set(stopwords.words("english"))
-    #
-    # words_filtered = [e.lower() for e in query.split() if len(e) >= 3]
-    # words_cleaned = [word for word in words_filtered
-    #                  if 'http' not in word
-    #                  and not word.startswith('@')
-    #                  and not word.startswith('#')
-    #                  and word != 'RT']
-    # words_without_stopwords = [word for word in words_cleaned if not word in stopwords_set]
-    # df[nrc.sentiments] = nrc.sentiment_score(words_without_stopwords)
-    #
-    # plot_sentiment(data=df)
+    # Plot sentiment
+    plot_sentiment(data=new_df, year='17-19')
+    new_df.to_csv('datasets/sentiments_17-19.csv'.format(year), index=False)
+    year += 1
