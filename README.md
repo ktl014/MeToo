@@ -1,5 +1,22 @@
 # \#MeToo hashtag analysis
 ## Project to analyze spread and impact of the #MeToo movement on Twitter, over time and geography, different kinds of sentiments expressed etc.
+
+## Required Packages
+### The following packages can be installed through pip install -r requirements.txt:
+* numpy
+* pandas
+* geopy
+* matplotlib
+* bokeh
+* wordcloud - generates word clouds
+* nltk - natural language toolkit
+* tweepy - twitter api for accessing user data
+* https://github.com/matplotlib/basemap/archive/master.zip - basemap for plotting geographical maps
+* shapely - shape stuff 
+* imageio - image manipulation/ saving
+* pandas_bokeh
+* GetOldTweets3 - extracts old tweets using urls
+
 ### UCSD ECE 143 Spring '19 - Team 19
 ### Directory structure:
 - datasets/ - datasets folder
