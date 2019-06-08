@@ -1,11 +1,22 @@
-# MeToo
+# \#MeToo hashtag analysis
 ## Project to analyze spread and impact of the #MeToo movement on Twitter, over time and geography, different kinds of sentiments expressed etc.
 ### UCSD ECE 143 Spring '19 - Team 19
 ### Directory structure:
 - datasets/ - datasets folder
   - .CSV file for tweets from 2017-18, 2018-19 and cumulative 2017-19 with details of tweets: text, date-time, username, #retweets, hashtags and mentions
   - file used to weed out emojis used in tweets for better sentiment analysis
+- figs/ - plots folder - .PNG files of:
+  - word clouds of proper and common nouns in tweets from 2017-18, 18-19 and cumulative
+  - bar graph of occurrences of proper and common nouns in tweets from 2017-18, 18-19 and cumulative
+  - bar graph of sentiments expressed in tweets from 2017-18
+- images/ - map images folder - .PNG files of gif of temporal-expanding map in an ordered sequence for easy plotting
+- processed_data/ - post-sentiment-analyzed-data - .CSV with same information as .CSV files from datasets/ folder and annotated with scores for different sentiments in additional columns
 - visualization_notebook.ipynb - one sample of all types of graphs used in PPT
+#### Remember to click external visualization icon on top right of notebook to render bokeh plots!
+- \*.p files - pickle files containing lattitude and longitude information
+- possible_names.txt
+- requirements.txt - contains all dependencies required to run the project
+- possible_names.txt - corpus containing 
 - freq_dict.py - contains functions:
   - freq_dict - return string:word mapping of important keywords/names found in tweets stored in CSVs
 - get_tweet_with_more_stuffs.py - contains functions:
@@ -21,7 +32,7 @@
   - plot_sentiment - plots bar graph of sentiment of tweets, based on sentiment corpus in dataset folder
   - class NRCLexicon - NRC Lexicon to parse, map and score tweets, functions:
     - init
-    - is_word_available - return if word is available in corpus
+    - lemnatize - return comma-separated lemnatized words given query string
     - sentiment score - return sentiment score given list of words
 - utilities.py - contains functions:
   - create_country_dict - return dictionary of countries based on geojson file from githubusercontent
