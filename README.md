@@ -1,6 +1,24 @@
+### UCSD ECE 143 Spring '19 - Team 19
+
 # \#MeToo hashtag analysis
 ## Project to analyze spread and impact of the #MeToo movement on Twitter, over time and geography, different kinds of sentiments expressed etc.
-### UCSD ECE 143 Spring '19 - Team 19
+
+### Required Packages
+#### The following packages can be installed through pip install -r requirements.txt:
+* numpy
+* pandas
+* geopy
+* matplotlib
+* bokeh
+* wordcloud - generates word clouds
+* nltk - natural language toolkit
+* tweepy - twitter api for accessing user data
+* https://github.com/matplotlib/basemap/archive/master.zip - basemap for plotting geographical maps
+* shapely - shape stuff 
+* imageio - image manipulation/ saving
+* pandas_bokeh
+* GetOldTweets3 - extracts old tweets using urls
+
 ### Directory structure:
 - datasets/ - datasets folder
   - .CSV file for tweets from 2017-18, 2018-19 and cumulative 2017-19 with details of tweets: text, date-time, username, #retweets, hashtags and mentions
