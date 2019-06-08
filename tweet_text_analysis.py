@@ -234,6 +234,7 @@ if __name__ == '__main__':
     for data in os.listdir(dataset_dir):
         if data.endswith('with_hashtags.csv'):
             # Read in data
+            
             temp = pd.read_csv(os.path.join(dataset_dir, data))
             smpl_size = 10
             temp = temp.sample(smpl_size).reset_index(drop=True) # UNCOMMENT FOR QUICK DEV
