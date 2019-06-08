@@ -36,7 +36,7 @@ def csv_to_dataframe_time_amount(directory):
 
     return tweet_month_df
     
-    def number_of_tweet_over_time(tweet_month_df):
+def number_of_tweet_over_time(tweet_month_df):
     '''Return bokeh object of #tweets over time given dataframe object of month:#tweets mapping'''
     import pandas as pd
     assert (isinstance(tweet_month_df, pd.DataFrame))
@@ -89,7 +89,7 @@ def csv_to_dataframe_time_amount(directory):
 
     return p
     
-    def number_of_mention_per_person(directory):
+def number_of_mention_per_person(directory):
     '''Return bokeh object of #mentions/persion in tweets given CSV dataset directory path'''
     import pandas as pd
     import matplotlib.pyplot as plt
